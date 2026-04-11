@@ -60,8 +60,8 @@ WORKDIR /build
 # Fallback: If that fails (e.g., for commits or non-existent branches), do a full clone and checkout
 # This approach supports both branches/tags and specific commit hashes
 # If VERSION checkout via shallow clone fails, fall back to a full clone and checkout
-RUN git clone --branch ${VERSION} --depth 1 https://github.com/hlquery/hlquery.git hlquery-src 2>/dev/null || \
-    (git clone https://github.com/hlquery/hlquery.git hlquery-src && \
+RUN git clone --branch ${VERSION} --depth 1 git@github.com:hlquery/hlquery.git hlquery-src 2>/dev/null || \
+    (git clone git@github.com:hlquery/hlquery.git hlquery-src && \
      cd hlquery-src && \
      (git checkout ${VERSION} 2>/dev/null || \
       (echo "Error: Cannot checkout '${VERSION}'" && exit 1)) && \

@@ -1,8 +1,10 @@
-# hlquery Docker Installation
+<div align="center">
+  <img src="https://docs.hlquery.com/img/hlquery/2.png" alt="hlquery logo" width="200">
+</div>
+
+**Get hlquery running in Docker!**
 
 hlquery is a high-performance search engine written in C++ designed for fast full-text search and semantic search capabilities.
-
-**Search beyond keywords** - Get hlquery running in Docker.
 
 ## Prerequisites
 
