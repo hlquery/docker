@@ -1,0 +1,84 @@
+# Ignore git files
+.git
+.gitignore
+
+# Ignore build artifacts
+build/
+*.o
+*.a
+*.so
+*.dylib
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.bak
+*.old
+*.swp
+*.swo
+*~
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore data directories
+data/
+run/data/
+run/logs/
+run/admin/
+
+# Ignore test files
+test/
+tests/
+*.test
+
+# Ignore documentation (but keep README for Docker context)
+docs/
+*.md
+!README.md
+
+# Ignore CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Ignore package files
+package.json
+package-lock.json
+yarn.lock
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Ignore Node.js
+node_modules/
+npm-debug.log*
+
+# Ignore Rust
+target/
+Cargo.lock
+
+# Ignore PHP
+vendor/
+composer.lock
+
+# Ignore Perl
+*.pm.bak
+
+# Ignore Docker files from other locations
+# (This file is in the docker directory, so no need to exclude/include)

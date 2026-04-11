@@ -1,0 +1,114 @@
+# Docker Compose configuration for hlquery
+# This file defines the services, volumes, and networks needed to run hlquery
+# 
+# Usage:
+#   docker-compose up -d        # Start in background
+#   docker-compose down          # Stop and remove containers
+#   docker-compose logs -f       # View logs
+#   docker-compose ps            # Check status
+
+# ----------------------------------------------------------------====================================
+# Services
+# ----------------------------------------------------------------====================================
+services:
+  # Main hlquery service
+  hlquery:
+    # Build configuration
+    build:
+      # Build context: Current directory (where Dockerfile is located)
+      context: .
+      # Dockerfile to use for building
+      dockerfile: Dockerfile
+      # Build arguments passed to Dockerfile
+      args:
+        # Git version to build (branch, tag, or commit)
+        VERSION: unstable
+        # Build mode: release, debug, profile, sanitize, coverage
+        BUILD_MODE: release
+        # Enable jemalloc memory allocator (0 = disabled, 1 = enabled)
+        WITH_JEMALLOC: 0
+        # Enable tcmalloc memory allocator (0 = disabled, 1 = enabled)
+        WITH_TCMALLOC: 0
+    
+    # Image name and tag
+    image: hlquery:latest
+    
+    # Container name (makes it easier to reference)
+    container_name: hlquery
+    
+    # Restart policy: restart container unless it was explicitly stopped
+    restart: unless-stopped
+    
+    # Port mappings: host_port:container_port
+    # HOST_PORT controls the published host port without changing the
+    # service port inside the container.
+    ports:
+      - "${HOST_PORT:-9200}:${HLQUERY_PORT:-9200}"
+    
+    # Volume mounts for persistent data
+    # Named volumes are managed by Docker and persist across container restarts
+    volumes:
+      # Data volume: Stores collection data and indexes
+      - hlquery_data:/var/lib/hlquery
+      # Logs volume: Stores log files
+      - hlquery_logs:/var/log/hlquery
+      # Configuration volume: Stores configuration files
+      - hlquery_conf:/etc/hlquery/conf
+    
+    # Environment variables
+    # These can be overridden when running docker-compose
+    environment:
+      # Data directory path inside container
+      - HLQUERY_DATA_DIR=/var/lib/hlquery
+      # Log directory path inside container
+      - HLQUERY_LOG_DIR=/var/log/hlquery
+      # Configuration directory path inside container
+      - HLQUERY_CONF_DIR=/etc/hlquery/conf
+      # HTTP API port
+      - HLQUERY_PORT=${HLQUERY_PORT:-9200}
+    
+    # Health check configuration
+    # Docker will periodically check if the service is healthy
+    healthcheck:
+      # Command to run for health check
+      test: ["CMD", "/usr/local/bin/hlquery-cli", "status"]
+      # How often to run the health check
+      interval: 30s
+      # Maximum time to wait for the check to complete
+      timeout: 3s
+      # Number of consecutive failures before marking as unhealthy
+      retries: 3
+      # Time to wait before starting health checks (allows service to start)
+      start_period: 5s
+    
+    # Network configuration
+    networks:
+      # Connect to the hlquery_network
+      - hlquery_network
+
+# ----------------------------------------------------------------====================================
+# Volumes
+# ----------------------------------------------------------------====================================
+# Named volumes for persistent data storage
+# These volumes persist even if containers are removed
+volumes:
+  # Data volume: Collection data and indexes
+  hlquery_data:
+    # Use local driver (stores on host filesystem)
+    driver: local
+  # Logs volume: Application logs
+  hlquery_logs:
+    driver: local
+  # Configuration volume: Configuration files
+  hlquery_conf:
+    driver: local
+
+# ----------------------------------------------------------------====================================
+# Networks
+# ----------------------------------------------------------------====================================
+# Network configuration for container communication
+networks:
+  # Custom bridge network for hlquery
+  hlquery_network:
+    # Bridge driver: Creates an internal network for containers
+    driver: bridge
