@@ -38,12 +38,10 @@ services:
     
     # Restart policy: restart container unless it was explicitly stopped
     restart: unless-stopped
-    
-    # Port mappings: host_port:container_port
-    # HOST_PORT controls the published host port without changing the
-    # service port inside the container.
-    ports:
-      - "${HOST_PORT:-9200}:${HLQUERY_PORT:-9200}"
+
+    # Use host networking on Linux to avoid Docker bridge/iptables failures on
+    # systems with broken DOCKER-ISOLATION chains.
+    network_mode: host
     
     # Volume mounts for persistent data
     # Named volumes are managed by Docker and persist across container restarts
@@ -81,11 +79,6 @@ services:
       # Time to wait before starting health checks (allows service to start)
       start_period: 5s
     
-    # Network configuration
-    networks:
-      # Connect to the hlquery_network
-      - hlquery_network
-
 # ----------------------------------------------------------------====================================
 # Volumes
 # ----------------------------------------------------------------====================================
@@ -102,13 +95,3 @@ volumes:
   # Configuration volume: Configuration files
   hlquery_conf:
     driver: local
-
-# ----------------------------------------------------------------====================================
-# Networks
-# ----------------------------------------------------------------====================================
-# Network configuration for container communication
-networks:
-  # Custom bridge network for hlquery
-  hlquery_network:
-    # Bridge driver: Creates an internal network for containers
-    driver: bridge

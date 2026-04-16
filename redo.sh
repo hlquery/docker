@@ -19,8 +19,8 @@ docker rmi hlquery:latest 2>/dev/null || true
 echo "[4/6] Rebuilding images (no cache)..."
 docker-compose build --no-cache
 
-echo "[5/6] Starting services on port 9201..."
-export HOST_PORT=9201
+echo "[5/6] Starting services on port 9200..."
+export HOST_PORT=9200
 docker-compose up -d
 
 echo "[6/6] Attaching to logs..."

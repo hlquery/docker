@@ -2,6 +2,22 @@
   <img src="https://docs.hlquery.com/img/hlquery/2.png" alt="hlquery logo" width="200">
 </div>
 
+<div align="center">
+
+**Docker packaging and runtime for hlquery**
+
+[![Twitter Follow](https://img.shields.io/twitter/url/https/x.com/hlquery.svg?style=social&label=Follow%20%40hlquery)](https://x.com/hlquery)
+[![Linux Build](https://github.com/hlquery/hlquery/workflows/Linux%20build/badge.svg)](https://github.com/hlquery/hlquery/actions)
+[![macOS Build](https://github.com/hlquery/hlquery/workflows/macOS%20Build/badge.svg)](https://github.com/hlquery/hlquery/actions)
+[![FreeBSD Build](https://github.com/hlquery/hlquery/workflows/FreeBSD%20Build/badge.svg)](https://github.com/hlquery/hlquery/actions)
+[![Commit Activity](https://img.shields.io/github/commit-activity/m/hlquery/hlquery)](https://github.com/hlquery/hlquery/pulse)
+[![GitHub stars](https://img.shields.io/github/stars/hlquery/hlquery?style=social)](https://github.com/hlquery/hlquery/stargazers)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+[Documentation](https://docs.hlquery.com) • [GitHub](https://github.com/hlquery/hlquery/tree/unstable/etc/docker) • [Discord](https://discord.hlquery.com)
+
+</div>
+
 **Get hlquery running in Docker!**
 
 hlquery is a high-performance search engine written in C++ designed for fast full-text search and semantic search capabilities.
@@ -58,18 +74,18 @@ The bootstrap script will build and start hlquery automatically.
 
 1. **Navigate to the docker directory:**
    ```bash
-   cd docker
+   $ cd docker
    ```
 
 2. **Start hlquery:**
    ```bash
-   docker-compose up -d
+   $ docker-compose up -d
    ```
 
 3. **Check status:**
    ```bash
-   docker-compose ps
-   docker-compose logs -f
+   $ docker-compose ps
+   $ docker-compose logs -f
    ```
 
 **Stop hlquery:**
@@ -81,8 +97,8 @@ docker-compose down
 
 1. **Build the image:**
    ```bash
-   cd docker
-   docker build --build-arg VERSION=unstable -t hlquery:latest .
+   $ cd docker
+   $ docker build --build-arg VERSION=unstable -t hlquery:latest .
    ```
 
 2. **Run the container:**
@@ -97,14 +113,14 @@ docker-compose down
 
 3. **Check status:**
    ```bash
-   docker ps
-   docker logs hlquery
+   $ docker ps
+   $ docker logs hlquery
    ```
 
 **Stop hlquery:**
 ```bash
-docker stop hlquery
-docker rm hlquery
+$ docker stop hlquery
+$ docker rm hlquery
 ```
 
 ## Configuration
@@ -227,26 +243,26 @@ docker run -d \
 
 ```bash
 # Docker Compose
-docker-compose ps
+$ docker-compose ps
 
 # Docker
-docker ps | grep hlquery
+$ docker ps | grep hlquery
 ```
 
 ### Test Health Endpoint
 
 ```bash
-curl http://localhost:${HOST_PORT:-9200}/health
+$ curl http://localhost:${HOST_PORT:-9200}/health
 ```
 
 ### View Logs
 
 ```bash
 # Docker Compose
-docker-compose logs -f
+$ docker-compose logs -f
 
 # Docker
-docker logs -f hlquery
+$ docker logs -f hlquery
 ```
 
 ## Common Commands
@@ -255,23 +271,23 @@ docker logs -f hlquery
 
 ```bash
 # Start
-docker-compose up -d
+$ docker-compose up -d
 
 # Stop
-docker-compose down
+$ docker-compose down
 
 # Restart
-docker-compose restart
+$ docker-compose restart
 ```
 
 ### Access Container Shell
 
 ```bash
 # Docker Compose
-docker-compose exec hlquery /bin/bash
+$ docker-compose exec hlquery /bin/bash
 
 # Docker
-docker exec -it hlquery /bin/bash
+$ docker exec -it hlquery /bin/bash
 ```
 
 ### Update hlquery
@@ -283,8 +299,8 @@ docker exec -it hlquery /bin/bash
 
 2. **Rebuild and restart:**
    ```bash
-   docker-compose build
-   docker-compose up -d
+   $ docker-compose build
+   $ docker-compose up -d
    ```
 
 ## Troubleshooting
@@ -293,9 +309,9 @@ docker exec -it hlquery /bin/bash
 
 **Check logs:**
 ```bash
-docker-compose logs
+$ docker-compose logs
 # or
-docker logs hlquery
+$ docker logs hlquery
 ```
 
 **Common issues:**

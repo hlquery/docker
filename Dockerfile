@@ -17,32 +17,31 @@ ARG VERSION=unstable
 ARG BUILD_MODE=release
 ARG WITH_JEMALLOC=0
 ARG WITH_TCMALLOC=0
+ARG BUILD_JOBS=4
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build dependencies required to compile hlquery
-# build-essential: Provides gcc, g++, make, and other build tools
-# git: Required to clone the source code
-# ca-certificates: Required for HTTPS connections to GitHub
-# cmake: Required to build RocksDB from source (if vendor/rocksdb exists)
-RUN apt-get update && apt-get install -y \
+# Make apt more resilient on slow or flaky mirrors.
+ARG APT_FLAGS="-o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 -o Acquire::ForceIPv4=true"
+
+# Retry apt index refreshes cleanly when Ubuntu mirrors are mid-sync.
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Install build dependencies required to compile hlquery.
+# Use one apt transaction to reduce mirror churn and add retry/timeout flags.
+RUN for attempt in 1 2 3 4 5; do \
+      rm -rf /var/lib/apt/lists/*; \
+      apt-get ${APT_FLAGS} update && break; \
+      echo "apt-get update failed on attempt ${attempt}, retrying..."; \
+      sleep $((attempt * 5)); \
+    done && \
+    apt-get ${APT_FLAGS} install -y --no-install-recommends \
     build-essential \
-    g++ \
-    make \
     git \
     ca-certificates \
     cmake \
     pkg-config \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install SSL/TLS support libraries and RocksDB dependencies
-# libssl-dev: Provides OpenSSL development headers
-# librocksdb-dev: System RocksDB library (fallback if vendor/rocksdb not present)
-# Compression libraries: Required if using system RocksDB
-#   zlib1g-dev, libsnappy-dev, liblz4-dev, libzstd-dev, libbz2-dev
-# The || true ensures this doesn't fail if packages are unavailable
-RUN apt-get update && apt-get install -y \
     libssl-dev \
     librocksdb-dev \
     zlib1g-dev \
@@ -50,7 +49,7 @@ RUN apt-get update && apt-get install -y \
     liblz4-dev \
     libzstd-dev \
     libbz2-dev \
-    && rm -rf /var/lib/apt/lists/* || true
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory for the build process
 WORKDIR /build
@@ -60,13 +59,10 @@ WORKDIR /build
 # Fallback: If that fails (e.g., for commits or non-existent branches), do a full clone and checkout
 # This approach supports both branches/tags and specific commit hashes
 # If VERSION checkout via shallow clone fails, fall back to a full clone and checkout
-RUN git clone --branch ${VERSION} --depth 1 git@github.com:hlquery/hlquery.git hlquery-src 2>/dev/null || \
-    (git clone git@github.com:hlquery/hlquery.git hlquery-src && \
-     cd hlquery-src && \
-     (git checkout ${VERSION} 2>/dev/null || \
-      (echo "Error: Cannot checkout '${VERSION}'" && exit 1)) && \
-     cd ..)
-
+RUN git clone https://github.com/hlquery/hlquery.git hlquery-src && \
+    cd hlquery-src && \
+    git checkout ${VERSION}
+    
 # Change to the cloned source directory
 WORKDIR /build/hlquery-src
 
@@ -75,14 +71,14 @@ WORKDIR /build/hlquery-src
 # make: Compiles hlquery with the specified build options
 #   BUILD_MODE: Controls optimization and debug symbols
 #   WITH_JEMALLOC/WITH_TCMALLOC: Memory allocator options
-#   -j$(nproc): Uses all available CPU cores for parallel compilation
+#   -j${BUILD_JOBS}: Uses a bounded number of CPU cores for more reliable Docker builds
 # make install: Installs the built binaries to the system paths
 RUN ./configure && \
-    make vendor/rocksdb/build/librocksdb.a && \
+    make -j${BUILD_JOBS} vendor/rocksdb/build/librocksdb.a && \
     make BUILD_MODE=${BUILD_MODE} \
          WITH_JEMALLOC=${WITH_JEMALLOC} \
          WITH_TCMALLOC=${WITH_TCMALLOC} \
-         -j$(nproc) && \
+         -j${BUILD_JOBS} && \
     make install
 
 # ----------------------------------------------------------------====================================
@@ -92,9 +88,17 @@ RUN ./configure && \
 # This keeps the final image small by excluding build dependencies
 FROM ubuntu:22.04
 
-# Install only runtime dependencies
-# ca-certificates: Required for HTTPS connections in the application
-RUN apt-get update && apt-get install -y \
+ARG APT_FLAGS="-o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 -o Acquire::ForceIPv4=true"
+
+# Install only runtime dependencies.
+# Retry apt index refreshes because Ubuntu mirrors can briefly serve mismatched metadata while syncing.
+RUN for attempt in 1 2 3 4 5; do \
+      rm -rf /var/lib/apt/lists/*; \
+      apt-get ${APT_FLAGS} update && break; \
+      echo "apt-get update failed on attempt ${attempt}, retrying..."; \
+      sleep $((attempt * 5)); \
+    done && \
+    apt-get ${APT_FLAGS} install -y --no-install-recommends \
     ca-certificates \
     libssl3 \
     zlib1g \
