@@ -1,4 +1,21 @@
-# Configuration Examples
+<div align="center">
+  <img src="https://docs.hlquery.com/img/hlquery/2.png" alt="hlquery logo" width="200">
+</div>
+
+<div align="center">
+
+**Docker configuration examples for hlquery runtime deployments.**
+
+[![Follow hlquery](https://img.shields.io/badge/Follow-%40hlquery-blue?logo=x&logoColor=white)](https://x.com/hlquery)
+[![Linux Build](https://github.com/hlquery/hlquery/workflows/Linux%20build/badge.svg)](https://github.com/hlquery/hlquery/actions)
+[![macOS Build](https://github.com/hlquery/hlquery/workflows/macOS%20Build/badge.svg)](https://github.com/hlquery/hlquery/actions)
+[![FreeBSD Build](https://github.com/hlquery/hlquery/workflows/FreeBSD%20Build/badge.svg)](https://github.com/hlquery/hlquery/actions)
+[![Commit Activity](https://img.shields.io/github/commit-activity/m/hlquery/hlquery)](https://github.com/hlquery/hlquery/pulse)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+</div>
+
+# Docker Configuration Examples
 
 This directory contains example configuration files for hlquery.
 
