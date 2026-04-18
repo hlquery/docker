@@ -17,21 +17,21 @@
 
 hlquery is a high-performance search engine written in C++ designed for fast full-text search and semantic search capabilities.
 
-## Prerequisites
+### Prerequisites
 
 - Docker installed and running
 - Docker Compose installed (usually included with Docker)
 - Port 9200 available, or set `HOST_PORT` to publish on a different host port
 
-## Installation
+### Installation
 
 ### Quick Start (Recommended)
 
 The easiest way to install and run hlquery:
 
 ```bash
-cd docker
-docker-compose up -d
+$ cd docker
+$ docker-compose up -d
 ```
 
 This will:
@@ -42,14 +42,14 @@ This will:
 If port `9200` is already in use on the host:
 
 ```bash
-HOST_PORT=9201 docker-compose up -d
+$ HOST_PORT=9201 docker-compose up -d
 ```
 
 This keeps hlquery listening on port `9200` inside the container while publishing it as `http://localhost:9201` on the host.
 
 **Verify it's running** (replace `9200` if you set `HOST_PORT`):
 ```bash
-curl http://localhost:9200/health
+$ curl http://localhost:9200/health
 ```
 
 ### Using the Bootstrap Script
@@ -57,8 +57,8 @@ curl http://localhost:9200/health
 Alternatively, use the automated bootstrap script:
 
 ```bash
-cd docker
-./bootstrap.sh
+$ cd docker
+$ ./bootstrap.sh
 ```
 
 The bootstrap script will build and start hlquery automatically.
@@ -85,7 +85,7 @@ The bootstrap script will build and start hlquery automatically.
 
 **Stop hlquery:**
 ```bash
-docker-compose down
+$ docker-compose down
 ```
 
 ### Method 2: Docker Command
@@ -98,7 +98,7 @@ docker-compose down
 
 2. **Run the container:**
    ```bash
-   docker run -d \
+   $ docker run -d \
      --name hlquery \
      -p 9200:9200 \
      -v hlquery_data:/var/lib/hlquery \
@@ -135,7 +135,7 @@ The Docker image builds from `https://github.com/hlquery/hlquery` and defaults t
 
 **Example - Change port:**
 ```bash
-docker run -d \
+$ docker run -d \
   --name hlquery \
   -p 8080:8080 \
   -e HLQUERY_PORT=8080 \
@@ -154,7 +154,7 @@ volumes:
 
 **Docker command:**
 ```bash
-docker run -d \
+$ docker run -d \
   --name hlquery \
   -p 9200:9200 \
   -v /path/to/your/config:/etc/hlquery/conf \
@@ -180,14 +180,14 @@ HOST_PORT=8080 HLQUERY_PORT=8080 docker-compose up -d
 ### Build from Source
 
 ```bash
-cd docker
-docker build -t hlquery:latest .
+$ cd docker
+$ docker build -t hlquery:latest .
 ```
 
 ### Build with Custom Options
 
 ```bash
-docker build \
+$ docker build \
   --build-arg VERSION=latest \
   --build-arg BUILD_MODE=release \
   --build-arg WITH_JEMALLOC=0 \
@@ -224,7 +224,7 @@ Docker Compose automatically creates named volumes. Data persists across contain
 Mount host directories directly:
 
 ```bash
-docker run -d \
+$ docker run -d \
   --name hlquery \
   -p 9200:9200 \
   -v /host/data:/var/lib/hlquery \
@@ -342,12 +342,6 @@ For production, consider:
 5. **Set up monitoring and alerts**
 
 See the [Production Deployment](#production-deployment) section in the full documentation for detailed examples.
-
-## Additional Resources
-
-- **API Documentation**: See main project README
-- **Configuration Guide**: See `conf/README.md` for configuration examples
-- **Docker Documentation**: [docs.docker.com](https://docs.docker.com)
 
 ---
 
