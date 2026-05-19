@@ -130,6 +130,9 @@ RUN useradd -r -s /bin/false -u 1000 hlquery && \
 COPY --from=builder /build/hlquery-src/run/hlquery /usr/local/bin/hlquery
 COPY --from=builder /build/hlquery-src/run/bin/hlquery /usr/local/bin/hlqueryd
 COPY --from=builder /build/hlquery-src/run/bin/hlquery-cli /usr/local/bin/hlquery-cli
+# Keep an immutable copy of the default configuration for seeding persisted
+# config volumes after upgrades.
+COPY --from=builder /build/hlquery-src/run/conf /usr/share/hlquery/conf-default
 COPY --from=builder /build/hlquery-src/run/conf /etc/hlquery/conf
 COPY --from=builder /build/hlquery-src/run/modules /opt/hlquery/modules
 

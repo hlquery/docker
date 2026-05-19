@@ -1,0 +1,76 @@
+name: Docker
+
+on:
+  push:
+    paths:
+      - ".github/workflows/docker.yml"
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "entrypoint.sh"
+      - "bootstrap.sh"
+      - "redo.sh"
+      - ".dockerignore"
+      - "tests/**"
+      - "conf/**"
+  pull_request:
+    paths:
+      - ".github/workflows/docker.yml"
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "entrypoint.sh"
+      - "bootstrap.sh"
+      - "redo.sh"
+      - ".dockerignore"
+      - "tests/**"
+      - "conf/**"
+  workflow_dispatch:
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate scripts
+        working-directory: .
+        run: |
+          bash -n bootstrap.sh
+          bash -n entrypoint.sh
+          bash -n tests/test_health.sh
+          docker compose -f docker-compose.yml config > /dev/null
+
+      - name: Build image
+        working-directory: .
+        run: docker build -t hlquery:ci .
+
+      - name: Start container
+        working-directory: .
+        run: |
+          docker run -d --name hlquery-ci -p 9200:9200 hlquery:ci
+
+      - name: Wait for health endpoint
+        working-directory: .
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9200/health > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs hlquery-ci
+          exit 1
+
+      - name: Show container status
+        if: always()
+        run: |
+          docker ps -a
+          docker logs hlquery-ci || true
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f hlquery-ci || true

@@ -219,6 +219,32 @@ hlquery uses Docker volumes for persistent storage:
 
 Docker Compose automatically creates named volumes. Data persists across container restarts.
 
+## Troubleshooting
+
+### Configuration errors after upgrading
+
+The default Compose setup persists configuration in the `hlquery_conf` volume. If you upgrade to a newer image version and hit startup errors in `links.conf` or `hlquery.conf`, you may be running with an older persisted config.
+
+Reset the persisted config volume and restart:
+
+```bash
+docker-compose down -v
+docker-compose up -d --build
+```
+
+### `links.conf` node role must be a single value
+
+If you see an error like:
+
+> Invalid `<node ...>` entry in links.conf: Node role must be a single value ...
+
+Make sure each `<node ...>` uses a single `role=` value:
+
+- Cluster/distributed search: `role="distributed"` (aliases: `search`, `master`)
+- Replication follower: `role="slave"` (alias: `replica`)
+
+If you need both purposes for the same endpoint, add two `<node ...>` entries (one per role).
+
 ### Using Bind Mounts
 
 Mount host directories directly:

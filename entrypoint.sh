@@ -27,6 +27,10 @@ HLQUERY_CONF_DIR="${HLQUERY_CONF_DIR:-/etc/hlquery/conf}"
 # Port: HTTP API port that hlquery listens on
 HLQUERY_PORT="${HLQUERY_PORT:-9200}"
 
+# Default configuration seed directory inside the image. This exists so we can
+# repopulate a config volume after breaking config changes across versions.
+HLQUERY_CONF_SEED_DIR="${HLQUERY_CONF_SEED_DIR:-/usr/share/hlquery/conf-default}"
+
 # ----------------------------------------------------------------====================================
 # Directory Setup
 # ----------------------------------------------------------------====================================
@@ -51,6 +55,32 @@ export HLQUERY_DATA_DIR
 export HLQUERY_LOG_DIR
 export HLQUERY_CONF_DIR
 export HLQUERY_PORT
+
+# ----------------------------------------------------------------====================================
+# Seed default configuration (if needed)
+# ----------------------------------------------------------------====================================
+# Docker named volumes copy the image contents on first use, but users often
+# keep a persistent `hlquery_conf` volume across upgrades. If the persisted
+# configuration is incomplete, seed it from the current image defaults.
+if [ -d "$HLQUERY_CONF_SEED_DIR" ] && [ ! -f "$HLQUERY_CONF_DIR/hlquery.conf" ]; then
+    echo "[INFO] No hlquery.conf found in $HLQUERY_CONF_DIR; seeding defaults from $HLQUERY_CONF_SEED_DIR"
+    cp -a "$HLQUERY_CONF_SEED_DIR/." "$HLQUERY_CONF_DIR/"
+fi
+
+# Quick preflight hint for a common links.conf failure: role= must be a single
+# value (no whitespace, comma, or pipe). hlquery will validate too, but this
+# prints a more actionable hint in container logs before restart loops.
+if [ -f "$HLQUERY_CONF_DIR/links.conf" ]; then
+    if grep -Eq 'role="[^"]*[,|[:space:]][^"]*"' "$HLQUERY_CONF_DIR/links.conf"; then
+        echo "[ERROR] Invalid role= value detected in $HLQUERY_CONF_DIR/links.conf"
+        echo "[ERROR] role= must be a single value: distributed/search/master OR slave/replica"
+        echo "[ERROR] If you need both purposes, add two separate <node ...> entries (one per role)."
+        echo "[ERROR] Example:"
+        echo "[ERROR]   <node host=\"1.2.3.4\" port=\"9200\" role=\"distributed\" token=\"...\">"
+        echo "[ERROR]   <node host=\"1.2.3.4\" port=\"9200\" role=\"slave\" token=\"...\">"
+        exit 1
+    fi
+fi
 
 # ----------------------------------------------------------------====================================
 # Execute Command
