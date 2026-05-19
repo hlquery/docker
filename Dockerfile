@@ -126,14 +126,16 @@ RUN useradd -r -s /bin/false -u 1000 hlquery && \
 # hlquery: Wrapper script (kept for reference/manual use)
 # hlqueryd: Main server binary used by Docker
 # hlquery-cli: Command-line interface tool
-# conf: Default configuration files
+# conf: Docker-friendly default configuration (binds 0.0.0.0)
 COPY --from=builder /build/hlquery-src/run/hlquery /usr/local/bin/hlquery
 COPY --from=builder /build/hlquery-src/run/bin/hlquery /usr/local/bin/hlqueryd
 COPY --from=builder /build/hlquery-src/run/bin/hlquery-cli /usr/local/bin/hlquery-cli
 # Keep an immutable copy of the default configuration for seeding persisted
 # config volumes after upgrades.
-COPY --from=builder /build/hlquery-src/run/conf /usr/share/hlquery/conf-default
-COPY --from=builder /build/hlquery-src/run/conf /etc/hlquery/conf
+# Prefer Docker-tailored config shipped in the build context so the image works
+# even when building older source revisions that may not include `etc/docker/conf`.
+COPY conf /usr/share/hlquery/conf-default
+COPY conf /etc/hlquery/conf
 COPY --from=builder /build/hlquery-src/run/modules /opt/hlquery/modules
 
 # Copy the entrypoint script from the build context

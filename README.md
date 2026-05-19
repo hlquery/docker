@@ -7,6 +7,7 @@
 **Docker packaging and runtime for hlquery.**
 
 [![Follow hlquery](https://img.shields.io/badge/Follow-%40hlquery-blue?logo=x&logoColor=white&labelColor=000000)](https://x.com/hlquery)
+[![Docker](https://img.shields.io/badge/GitHub-Docker-purple?logo=github&logoColor=white&labelColor=000000)](https://github.com/hlquery/docker/stargazers)
 [![hlquery](https://img.shields.io/badge/GitHub-hlquery-blue?logo=github&logoColor=white&labelColor=000000)](https://github.com/hlquery/hlquery/stargazers)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-a35a0f?logo=open-source-initiative&logoColor=white&labelColor=000000)](https://opensource.org/licenses/BSD-3-Clause)
 
