@@ -60,15 +60,18 @@ chmod -R 644 ./conf/*
 
 Place your configuration files in this directory. Common files include:
 
-- `server.conf` - Main server configuration
-- `api.conf` - API endpoint configuration  
-- `search.conf` - Search engine settings
-- `storage.conf` - Data storage configuration
+- `hlquery.conf` - Main server configuration (required)
+- `links.conf` - Optional cluster/replication peer definitions
 
 ## Example Setup
 
-1. Copy example configuration files to this directory
-2. Modify them according to your needs
+This directory includes a minimal working example:
+
+- `hlquery.conf` - Minimal server config that binds `0.0.0.0:9200` and logs to stdout
+- `links.conf` - Empty example with correct `<node ... role="...">` rules
+
+To customize:
+1. Edit `hlquery.conf` and `links.conf` in this directory
 3. Mount the directory when starting the container
 4. Restart the container to apply changes
 

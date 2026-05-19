@@ -6,10 +6,9 @@
 
 **Docker packaging and runtime for hlquery.**
 
-[![Follow hlquery](https://img.shields.io/badge/Follow-%40hlquery-blue?logo=x&logoColor=white)](https://x.com/hlquery)
-[![Commit Activity](https://img.shields.io/github/commit-activity/m/hlquery/hlquery)](https://github.com/hlquery/docker/pulse)
-[![hlquery](https://img.shields.io/badge/GitHub-hlquery-181717?logo=github&logoColor=white)](https://github.com/hlquery/hlquery/stargazers)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Follow hlquery](https://img.shields.io/badge/Follow-%40hlquery-blue?logo=x&logoColor=white&labelColor=000000)](https://x.com/hlquery)
+[![hlquery](https://img.shields.io/badge/GitHub-hlquery-blue?logo=github&logoColor=white&labelColor=000000)](https://github.com/hlquery/hlquery/stargazers)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-a35a0f?logo=open-source-initiative&logoColor=white&labelColor=000000)](https://opensource.org/licenses/BSD-3-Clause)
 
 </div>
 
@@ -149,7 +148,7 @@ Mount your configuration directory:
 **Docker Compose:**
 ```yaml
 volumes:
-  - ./conf:/etc/hlquery/conf
+  - ./conf:/etc/hlquery/conf:ro
 ```
 
 **Docker command:**
@@ -157,11 +156,22 @@ volumes:
 $ docker run -d \
   --name hlquery \
   -p 9200:9200 \
-  -v /path/to/your/config:/etc/hlquery/conf \
+  -v /path/to/your/config:/etc/hlquery/conf:ro \
   hlquery:latest
 ```
 
-*Note: The container runs as user `hlquery` (UID 1000). Ensure your config directory has correct permissions.*
+**What is `/etc/hlquery/conf`?**
+
+- `/etc/hlquery/conf` is a path **inside the container** (not your host `/etc`).
+- Your host directory (for example `./conf`) becomes `/etc/hlquery/conf` *inside* the container when mounted.
+
+**Example configs**
+
+This repo includes a minimal working example you can copy:
+- `etc/docker/conf/hlquery.conf`
+- `etc/docker/conf/links.conf`
+
+*Note: The container runs as user `hlquery` (UID 1000). If you mount read-write (without `:ro`), ensure files are readable/writable for UID 1000.*
 
 ### Change Port in Docker Compose
 
