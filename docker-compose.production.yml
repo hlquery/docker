@@ -1,0 +1,27 @@
+services:
+  hlquery:
+    image: hlquery:${HLQUERY_VERSION:?set HLQUERY_VERSION to an immutable tag or commit}
+    build:
+      args:
+        VERSION: ${HLQUERY_VERSION:?set HLQUERY_VERSION to an immutable tag or commit}
+    environment:
+      HLQUERY_PRODUCTION: "1"
+      HLQUERY_CONFIG_FILE: /etc/hlquery/conf/hlquery.production.conf
+      HLQUERY_ADMIN_TOKEN_FILE: /run/secrets/hlquery_admin_token
+      HLQUERY_USERS_ENCRYPTION_KEY_FILE: /run/secrets/hlquery_users_key
+    secrets:
+      - hlquery_admin_token
+      - hlquery_users_key
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+secrets:
+  hlquery_admin_token:
+    file: ./secrets/admin_token
+  hlquery_users_key:
+    file: ./secrets/users_encryption_key

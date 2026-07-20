@@ -30,6 +30,7 @@ HLQUERY_PORT="${HLQUERY_PORT:-9200}"
 # Default configuration seed directory inside the image. This exists so we can
 # repopulate a config volume after breaking config changes across versions.
 HLQUERY_CONF_SEED_DIR="${HLQUERY_CONF_SEED_DIR:-/usr/share/hlquery/conf-default}"
+HLQUERY_CONFIG_FILE="${HLQUERY_CONFIG_FILE:-$HLQUERY_CONF_DIR/hlquery.conf}"
 
 # ----------------------------------------------------------------====================================
 # Directory Setup
@@ -55,6 +56,7 @@ export HLQUERY_DATA_DIR
 export HLQUERY_LOG_DIR
 export HLQUERY_CONF_DIR
 export HLQUERY_PORT
+export HLQUERY_CONFIG_FILE
 
 # ----------------------------------------------------------------====================================
 # Seed default configuration (if needed)
@@ -65,6 +67,25 @@ export HLQUERY_PORT
 if [ -d "$HLQUERY_CONF_SEED_DIR" ] && [ ! -f "$HLQUERY_CONF_DIR/hlquery.conf" ]; then
     echo "[INFO] No hlquery.conf found in $HLQUERY_CONF_DIR; seeding defaults from $HLQUERY_CONF_SEED_DIR"
     cp -a "$HLQUERY_CONF_SEED_DIR/." "$HLQUERY_CONF_DIR/"
+fi
+
+# Production mode intentionally fails closed. Secrets may be passed directly
+# or through Docker/Kubernetes secret files using the *_FILE variables.
+if [ "${HLQUERY_PRODUCTION:-0}" = "1" ]; then
+    case "$HLQUERY_CONFIG_FILE" in
+        /*) ;;
+        *) echo "[ERROR] HLQUERY_CONFIG_FILE must be an absolute path in production mode"; exit 1 ;;
+    esac
+
+    if [ -z "${HLQUERY_ADMIN_TOKEN:-}" ] && [ -z "${HLQUERY_ADMIN_TOKEN_FILE:-}" ]; then
+        echo "[ERROR] Production mode requires HLQUERY_ADMIN_TOKEN or HLQUERY_ADMIN_TOKEN_FILE"
+        exit 1
+    fi
+
+    if [ -z "${HLQUERY_USERS_ENCRYPTION_KEY:-}" ] && [ -z "${HLQUERY_USERS_ENCRYPTION_KEY_FILE:-}" ]; then
+        echo "[ERROR] Production mode requires HLQUERY_USERS_ENCRYPTION_KEY or HLQUERY_USERS_ENCRYPTION_KEY_FILE"
+        exit 1
+    fi
 fi
 
 # Quick preflight hint for a common links.conf failure: role= must be a single
@@ -91,19 +112,19 @@ if [ $# -gt 0 ]; then
     case "$1" in
         start)
             shift
-            set -- /usr/local/bin/hlqueryd "$@" --config "$HLQUERY_CONF_DIR/hlquery.conf"
+            set -- /usr/local/bin/hlqueryd "$@" --config "$HLQUERY_CONFIG_FILE"
             ;;
         hlqueryd|/usr/local/bin/hlqueryd)
-            set -- "$@" --config "$HLQUERY_CONF_DIR/hlquery.conf"
+            set -- "$@" --config "$HLQUERY_CONFIG_FILE"
             ;;
         hlquery|/usr/local/bin/hlquery|hlquery-cli|/usr/local/bin/hlquery-cli|sh|/bin/sh|bash|/bin/bash)
             ;;
         *)
-            set -- /usr/local/bin/hlqueryd "$@" --config "$HLQUERY_CONF_DIR/hlquery.conf"
+            set -- /usr/local/bin/hlqueryd "$@" --config "$HLQUERY_CONFIG_FILE"
             ;;
     esac
 else
-    set -- /usr/local/bin/hlqueryd --nofork --config "$HLQUERY_CONF_DIR/hlquery.conf"
+    set -- /usr/local/bin/hlqueryd --nofork --config "$HLQUERY_CONFIG_FILE"
 fi
 
 # Execute the command passed to the container (from CMD or docker run)

@@ -130,6 +130,7 @@ RUN useradd -r -s /bin/false -u 1000 hlquery && \
 COPY --from=builder /build/hlquery-src/run/hlquery /usr/local/bin/hlquery
 COPY --from=builder /build/hlquery-src/run/bin/hlquery /usr/local/bin/hlqueryd
 COPY --from=builder /build/hlquery-src/run/bin/hlquery-cli /usr/local/bin/hlquery-cli
+COPY --from=builder /build/hlquery-src/run/bin/hlquery-backup /usr/local/bin/hlquery-backup
 # Keep an immutable copy of the default configuration for seeding persisted
 # config volumes after upgrades.
 # Prefer Docker-tailored config shipped in the build context so the image works

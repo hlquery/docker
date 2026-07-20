@@ -22,7 +22,7 @@ services:
       # Build arguments passed to Dockerfile
       args:
         # Git version to build (branch, tag, or commit)
-        VERSION: unstable
+        VERSION: ${HLQUERY_VERSION:-unstable}
         # Build mode: release, debug, profile, sanitize, coverage
         BUILD_MODE: release
         # Enable jemalloc memory allocator (0 = disabled, 1 = enabled)
@@ -31,7 +31,7 @@ services:
         WITH_TCMALLOC: 0
     
     # Image name and tag
-    image: hlquery:latest
+    image: ${HLQUERY_IMAGE:-hlquery:development}
     
     # Container name (makes it easier to reference)
     container_name: hlquery

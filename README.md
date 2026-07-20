@@ -370,6 +370,12 @@ $ docker logs hlquery
 
 ## Production Deployment
 
+Use `docker-compose.production.yml` together with the base Compose file. The
+production override enables fail-closed startup, a read-only container
+filesystem, dropped capabilities, and file-backed secrets. See the repository's
+`PRODUCTION.md` for required secret setup and backup instructions. The base
+`hlquery.conf` remains development-only for compatibility.
+
 For production, consider:
 
 1. **Use specific image tags** instead of `latest`
